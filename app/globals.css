@@ -1,25 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #faf9f6;
+  --border: #e8e6e0;
+  --text: #1a1814;
+  --text2: #6b6860;
+  --text3: #a8a69f;
+
+  --blue: #2563eb;
+  --blue-bg: #eff4ff;
+  --blue-border: #bfcffc;
+  --green: #059669;
+  --green-bg: #ecfdf5;
+  --green-border: #a7f3d0;
+  --amber: #d97706;
+  --amber-bg: #fffbeb;
+  --amber-border: #fcd34d;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --red-border: #fca5a5;
+
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
 body {
-  background: var(--background);
-  color: var(--foreground);
+  font-family: var(--font-dm-sans, 'DM Sans', sans-serif);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Skill tags */
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-block;
+}
+.tag.matched { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.tag.partial  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.tag.missing  { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+
+/* Leaderboard row tags */
+.lb-tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.lb-tag.pos { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.lb-tag.neg { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+
+/* Animations */
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes fadeUp  { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
