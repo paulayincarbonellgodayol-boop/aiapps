@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MatchIQ — AI Recruitment Matching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --surface2:#faf9f6;
+  --border:#e8e6e0;
+  --text:#1a1814;
+  --text2:#6b6860;
+  --text3:#a8a69f;
+  --blue:#2563eb;
+  --blue-bg:#eff4ff;
+  --blue-border:#bfcffc;
+  --green:#059669;
+  --green-bg:#ecfdf5;
+  --green-border:#a7f3d0;
+  --amber:#d97706;
+  --amber-bg:#fffbeb;
+  --amber-border:#fcd34d;
+  --red:#dc2626;
+  --red-bg:#fef2f2;
+  --red-border:#fca5a5;
+  --radius:10px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.09),0 2px 4px rgba(0,0,0,.05);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* ── NAV ── */
+nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1100px;margin:0 auto;padding:0 24px;height:58px;display:flex;align-items:center;gap:20px}
+.logo{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--text);letter-spacing:-.02em;display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--blue)}
+.nav-tabs{display:flex;gap:2px;margin-left:16px}
+.nav-tab{font-size:13px;font-weight:500;padding:6px 16px;border-radius:7px;border:none;background:none;color:var(--text2);cursor:pointer;transition:all .15s}
+.nav-tab:hover{background:var(--bg);color:var(--text)}
+.nav-tab.active{background:var(--bg);color:var(--text);box-shadow:var(--shadow)}
+.nav-tab.active.tab-candidate{color:var(--blue)}
+.nav-tab.active.tab-recruiter{color:var(--green)}
+.nav-right{margin-left:auto}
+.api-badge{font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);color:var(--text3);cursor:pointer;background:var(--surface);transition:all .15s;font-family:'DM Mono',monospace}
+.api-badge:hover{border-color:var(--text2);color:var(--text2)}
+.api-badge.set{border-color:var(--green-border);color:var(--green);background:var(--green-bg)}
+
+/* ── PAGES ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── LANDING ── */
+.hero{max-width:1100px;margin:0 auto;padding:80px 24px 64px}
+.hero-eyebrow{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:20px}
+.hero-title{font-size:clamp(36px,5vw,58px);font-weight:300;line-height:1.15;color:var(--text);letter-spacing:-.02em;margin-bottom:24px;max-width:720px}
+.hero-title strong{font-weight:600}
+.hero-sub{font-size:18px;color:var(--text2);max-width:560px;line-height:1.7;margin-bottom:40px;font-weight:300}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.cta-primary{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:13px 28px;border-radius:var(--radius);border:none;cursor:pointer;background:var(--blue);color:#fff;transition:all .2s}
+.cta-primary:hover{background:#1d4ed8;transform:translateY(-1px)}
+.cta-primary.green{background:var(--green)}
+.cta-primary.green:hover{background:#047857}
+.cta-secondary{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:13px 28px;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);transition:all .2s}
+.cta-secondary:hover{background:var(--bg);border-color:var(--text3)}
+
+/* Value props */
+.value-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:64px 24px}
+.value-inner{max-width:1100px;margin:0 auto}
+.value-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px}
+.value-heading{font-size:clamp(24px,3vw,32px);font-weight:500;color:var(--text);margin-bottom:48px;letter-spacing:-.01em;max-width:500px;line-height:1.3}
+.value-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px}
+.value-card{padding:0}
+.value-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
+.value-icon.blue{background:var(--blue-bg)}
+.value-icon.green{background:var(--green-bg)}
+.value-icon.amber{background:var(--amber-bg)}
+.value-icon.purple{background:#f3f0ff}
+.value-card h3{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.value-card p{font-size:14px;color:var(--text2);line-height:1.65}
+
+/* How it works */
+.how-section{max-width:1100px;margin:0 auto;padding:64px 24px}
+.section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:14px}
+.section-heading{font-size:clamp(22px,3vw,28px);font-weight:500;color:var(--text);margin-bottom:48px;letter-spacing:-.01em;line-height:1.3}
+.how-cols{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.how-col-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.how-col-title span{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;margin-left:8px}
+.how-col-title span.blue{background:var(--blue-bg);color:var(--blue)}
+.how-col-title span.green{background:var(--green-bg);color:var(--green)}
+.how-step{display:flex;gap:14px;margin-bottom:20px}
+.how-num{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text3);flex-shrink:0;margin-top:1px}
+.how-step-body h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.how-step-body p{font-size:13px;color:var(--text2);line-height:1.55}
+
+/* Stats strip */
+.stats-strip{background:var(--text);padding:48px 24px}
+.stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px}
+.stat{text-align:center}
+.stat-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#fff;line-height:1}
+.stat-lbl{font-size:13px;color:#9ca3af;margin-top:8px}
+
+/* Landing footer CTA */
+.landing-footer{max-width:1100px;margin:0 auto;padding:64px 24px;text-align:center}
+.landing-footer h2{font-size:clamp(24px,3vw,34px);font-weight:500;letter-spacing:-.01em;margin-bottom:12px}
+.landing-footer p{font-size:15px;color:var(--text2);margin-bottom:32px}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;padding:28px;width:420px;max-width:90vw;box-shadow:var(--shadow-md)}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:6px}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.5}
+.modal input{width:100%;font-family:'DM Mono',monospace;font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;outline:none;color:var(--text);background:var(--bg)}
+.modal input:focus{border-color:var(--blue)}
+.modal-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+.btn-sm{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all .15s}
+.btn-sm:hover{background:var(--bg)}
+.btn-sm.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-sm.primary:hover{background:#1d4ed8}
+
+/* ── APP PAGES ── */
+.app-wrap{max-width:860px;margin:0 auto;padding:36px 24px}
+.app-header{margin-bottom:28px}
+.app-header h2{font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+.app-header p{font-size:14px;color:var(--text2)}
+
+/* ── FIELD TABS (job name / job description / cv) ── */
+.input-tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:3px;width:fit-content}
+.input-tab{font-size:13px;font-weight:500;padding:6px 18px;border-radius:7px;border:none;background:none;color:var(--text2);cursor:pointer;transition:all .15s}
+.input-tab.active{background:var(--surface);color:var(--blue);box-shadow:var(--shadow)}
+.input-tab-panel{display:none}
+.input-tab-panel.active{display:block}
+
+/* ── FIELDS ── */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.field label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+input[type=text].field-input{font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;width:100%}
+input[type=text].field-input:focus{border-color:var(--blue)}
+textarea{font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);resize:vertical;min-height:220px;transition:border-color .15s;outline:none;width:100%}
+textarea:focus{border-color:var(--blue)}
+textarea.green-focus:focus{border-color:var(--green)}
+
+/* ── DROP ZONE ── */
+.dropzone{border:2px dashed var(--border);border-radius:var(--radius);background:var(--surface);padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--blue);background:var(--blue-bg)}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dropzone-icon{font-size:32px;margin-bottom:10px}
+.dropzone-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.dropzone-sub{font-size:13px;color:var(--text3)}
+.dropzone-file{display:none;align-items:center;gap:10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;padding:10px 14px;margin-top:12px}
+.dropzone-file.show{display:flex}
+.dropzone-file span{font-size:13px;color:var(--blue);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dropzone-file button{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text3);background:none;border:none;cursor:pointer;padding:2px 6px}
+.dropzone-file button:hover{color:var(--red)}
+
+/* OR divider */
+.or-divider{display:flex;align-items:center;gap:12px;margin:14px 0;font-size:12px;color:var(--text3)}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── ANALYSE BTN ── */
+.analyse-btn{width:100%;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;margin-top:4px}
+.analyse-btn.blue-btn{background:var(--blue);color:#fff}
+.analyse-btn.blue-btn:hover{background:#1d4ed8}
+.analyse-btn.green-btn{background:var(--green);color:#fff}
+.analyse-btn.green-btn:hover{background:#047857}
+.analyse-btn:disabled{opacity:.55;cursor:not-allowed}
+.spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESULTS ── */
+.results{margin-top:28px;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;display:flex;align-items:center;gap:24px;margin-bottom:14px;box-shadow:var(--shadow)}
+.score-circle{width:88px;height:88px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:600}
+.score-circle .num{font-size:28px;line-height:1;font-family:'DM Mono',monospace}
+.score-circle .lbl{font-size:11px;margin-top:2px;font-weight:500;opacity:.8}
+.score-circle.great{background:var(--green-bg);border:2px solid var(--green-border);color:var(--green)}
+.score-circle.ok{background:var(--amber-bg);border:2px solid var(--amber-border);color:var(--amber)}
+.score-circle.low{background:var(--red-bg);border:2px solid var(--red-border);color:var(--red)}
+.score-summary{font-size:14px;color:var(--text2);line-height:1.65}
+.results-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.skill-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.skill-card h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.skill-card.matched h4{color:var(--green)}
+.skill-card.partial h4{color:var(--amber)}
+.skill-card.missing h4{color:var(--red)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500}
+.tag.matched{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.tag.partial{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.tag.missing{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.suggestions-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
+.suggestions-card h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:12px}
+.suggestion{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text2);line-height:1.5}
+.suggestion:last-child{border-bottom:none;padding-bottom:0}
+.suggestion-arrow{color:var(--blue);font-size:16px;flex-shrink:0;margin-top:1px}
+.cover-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 20px;border:1px solid var(--blue-border);border-radius:8px;color:var(--blue);background:var(--blue-bg);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px}
+.cover-btn:hover{background:var(--blue);color:#fff}
+.cover-btn:disabled{opacity:.5;cursor:not-allowed}
+.cover-letter-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:14px;font-size:14px;color:var(--text2);line-height:1.8;white-space:pre-wrap;box-shadow:var(--shadow)}
+
+/* ── RECRUITER ── */
+.candidates-section{margin-bottom:16px}
+.candidates-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.candidate-row{display:grid;grid-template-columns:180px 1fr auto;gap:10px;align-items:start;margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.candidate-row input{font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;outline:none;color:var(--text);background:var(--bg);width:100%}
+.candidate-row input:focus{border-color:var(--green)}
+.candidate-row textarea{min-height:90px;font-size:13px}
+.remove-btn{font-family:'DM Sans',sans-serif;font-size:20px;color:var(--text3);background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;transition:all .15s;align-self:flex-start;margin-top:2px}
+.remove-btn:hover{color:var(--red);background:var(--red-bg)}
+.add-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 18px;border:1.5px dashed var(--border);border-radius:8px;background:none;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:16px;display:block}
+.add-btn:hover{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.progress-bar-wrap{background:var(--border);border-radius:4px;height:4px;margin-bottom:14px;overflow:hidden}
+.progress-bar{height:100%;background:var(--green);border-radius:4px;transition:width .3s ease}
+.progress-text{font-size:12px;color:var(--text2);margin-bottom:8px;font-family:'DM Mono',monospace}
+.leaderboard{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:14px}
+.lb-header{display:grid;grid-template-columns:48px 1fr 90px 1fr 1fr 80px;padding:10px 20px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
+.lb-row{display:grid;grid-template-columns:48px 1fr 90px 1fr 1fr 80px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center;cursor:pointer;transition:background .1s}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:var(--bg)}
+.lb-row.top{background:var(--green-bg)}
+.lb-row.top:hover{background:#d1fae5}
+.rank{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--text2)}
+.rank.gold{color:#b45309;font-weight:700}
+.cand-name{font-size:14px;font-weight:600}
+.lb-score{font-family:'DM Mono',monospace;font-size:15px;font-weight:600}
+.lb-tags{display:flex;flex-wrap:wrap;gap:4px}
+.lb-tag{font-size:11px;padding:2px 8px;border-radius:20px}
+.lb-tag.pos{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.lb-tag.neg{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.view-btn{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s}
+.view-btn:hover{border-color:var(--green);color:var(--green)}
+.detail-panel{background:var(--surface2);border-top:1px solid var(--border);padding:16px 20px;display:none}
+.detail-panel.open{display:block;animation:fadeUp .2s ease}
+.detail-panel h5{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px;margin-top:12px}
+.detail-panel h5:first-child{margin-top:0}
+.export-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 20px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text2);cursor:pointer;transition:all .15s}
+.export-btn:hover{background:var(--text);color:#fff}
+
+/* ── ALERTS ── */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;border:1px solid var(--red-border);background:var(--red-bg);color:var(--red);display:none}
+.alert.show{display:block}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .how-cols{grid-template-columns:1fr}
+  .results-grid{grid-template-columns:1fr}
+  .candidate-row{grid-template-columns:1fr auto}
+  .candidate-row textarea{grid-column:1/-1}
+  .lb-header,.lb-row{grid-template-columns:36px 1fr 70px auto}
+  .lb-header span:nth-child(4),.lb-header span:nth-child(5),
+  .lb-row>div:nth-child(4),.lb-row>div:nth-child(5){display:none}
+  .stats-inner{grid-template-columns:1fr 1fr}
+  .input-tabs{width:100%}
+  .input-tab{flex:1;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" onclick="showPage('landing')"><span class="logo-dot"></span>MatchIQ</a>
+    <div class="nav-tabs">
+      <button class="nav-tab tab-candidate" onclick="showPage('candidate')">Candidate</button>
+      <button class="nav-tab tab-recruiter" onclick="showPage('recruiter')">Recruiter</button>
+    </div>
+    <div class="nav-right">
+      <button class="api-badge" id="api-badge" onclick="openModal()">API key</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ── API MODAL ── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Anthropic API key</h3>
+    <p>Your key is held in memory only and sent directly to the Anthropic API — never stored or logged anywhere.</p>
+    <input type="password" id="api-key-input" placeholder="sk-ant-…" />
+    <div class="modal-actions">
+      <button class="btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn-sm primary" onclick="saveKey()">Save key</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════ -->
+<div class="page active" id="page-landing">
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="hero-eyebrow">AI-powered recruitment matching</p>
+    <h1 class="hero-title">Match smarter.<br><strong>Hire faster.</strong><br>Apply with confidence.</h1>
+    <p class="hero-sub">MatchIQ uses AI to instantly score how well a candidate fits a role — helping recruiters shortlist at scale and candidates put their best foot forward.</p>
+    <div class="hero-ctas">
+      <button class="cta-primary" onclick="showPage('candidate')">I'm a candidate →</button>
+      <button class="cta-primary green" onclick="showPage('recruiter')">I'm a recruiter →</button>
+    </div>
+  </section>
+
+  <!-- Value props -->
+  <div class="value-section">
+    <div class="value-inner">
+      <p class="value-label">Why MatchIQ</p>
+      <h2 class="value-heading">Recruitment is time-consuming. AI makes it precise.</h2>
+      <div class="value-grid">
+        <div class="value-card">
+          <div class="value-icon blue">⚡</div>
+          <h3>Instant scoring</h3>
+          <p>Get a match score in seconds, not hours. No more manually scanning CVs against job requirements one by one.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon green">🎯</div>
+          <h3>Skill-level breakdown</h3>
+          <p>See exactly which skills match, which are transferable, and which are gaps — not just a number, but an explanation.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon amber">📋</div>
+          <h3>Ranked shortlists</h3>
+          <p>Recruiters can upload up to 10 CVs and get a ranked leaderboard with per-candidate strengths and red flags.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon purple">✉️</div>
+          <h3>Cover letter generation</h3>
+          <p>Candidates get a tailored cover letter generated from their match analysis — specific, not generic.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section class="how-section">
+    <p class="section-label">How it works</p>
+    <h2 class="section-heading">Two tools. One engine.</h2>
+    <div class="how-cols">
+      <div>
+        <p class="how-col-title">For candidates <span class="blue">Job seekers</span></p>
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-step-body"><h4>Enter the role</h4><p>Type in the job title and paste the full job description from any posting.</p></div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-step-body"><h4>Upload your CV</h4><p>Drop your CV as a PDF or paste your skills summary directly into the text area.</p></div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-step-body"><h4>Get your match report</h4><p>Receive a score, skill breakdown, and four concrete suggestions to strengthen your application.</p></div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div class="how-step-body"><h4>Generate a cover letter</h4><p>One click creates a tailored cover letter built from your analysis — ready to send.</p></div>
+        </div>
+      </div>
+      <div>
+        <p class="how-col-title">For recruiters <span class="green">HR teams</span></p>
+        <div class="how-step">
+          <div class="how-num">1</div>
+          <div class="how-step-body"><h4>Paste the job description</h4><p>One job description is all you need. Paste it once and run it against multiple candidates.</p></div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">2</div>
+          <div class="how-step-body"><h4>Add your candidates</h4><p>Add up to 10 candidates by name and CV. Mix and match — paste CVs or type summaries.</p></div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">3</div>
+          <div class="how-step-body"><h4>Get the ranked shortlist</h4><p>A live progress bar runs each analysis. Results appear as a ranked leaderboard you can drill into.</p></div>
+        </div>
+        <div class="how-step">
+          <div class="how-num">4</div>
+          <div class="how-step-body"><h4>Export and decide</h4><p>Download the full ranking as a CSV to share with your team or integrate into your process.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat"><div class="stat-num">250+</div><div class="stat-lbl">average CVs per open role</div></div>
+      <div class="stat"><div class="stat-num">6–8 hrs</div><div class="stat-lbl">typical first-pass screening</div></div>
+      <div class="stat"><div class="stat-num">&lt; 2 min</div><div class="stat-lbl">with MatchIQ per candidate</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-lbl">browser-based, no sign-up</div></div>
+    </div>
+  </div>
+
+  <!-- Footer CTA -->
+  <div class="landing-footer">
+    <h2>Ready to match smarter?</h2>
+    <p>No sign-up. No data stored. Just paste, analyse, and decide.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <button class="cta-primary" onclick="showPage('candidate')">Start as candidate →</button>
+      <button class="cta-secondary" onclick="showPage('recruiter')">Start as recruiter</button>
+    </div>
+  </div>
+
+</div><!-- /page-landing -->
+
+
+<!-- ══════════════════════════════════════════
+     CANDIDATE PAGE
+══════════════════════════════════════════ -->
+<div class="page" id="page-candidate">
+  <div class="app-wrap">
+    <div class="app-header">
+      <h2>Candidate match analysis</h2>
+      <p>Find out how well you fit a role — and get personalised advice to improve your chances.</p>
+    </div>
+
+    <div class="alert" id="cand-alert"></div>
+
+    <!-- Input tabs -->
+    <div class="input-tabs">
+      <button class="input-tab active" onclick="setCandTab('job-name')">Job title</button>
+      <button class="input-tab" onclick="setCandTab('job-desc')">Job description</button>
+      <button class="input-tab" onclick="setCandTab('cv')">Your CV</button>
+    </div>
+
+    <!-- Tab: Job title -->
+    <div class="input-tab-panel active" id="ctab-job-name">
+      <div class="field">
+        <label>Role you're applying for</label>
+        <input type="text" class="field-input" id="job-title" placeholder="e.g. Product Manager, Data Analyst, Marketing Lead…">
+      </div>
+      <p style="font-size:13px;color:var(--text3)">This helps MatchIQ contextualise the analysis for the right seniority and domain.</p>
+    </div>
+
+    <!-- Tab: Job description -->
+    <div class="input-tab-panel" id="ctab-job-desc">
+      <div class="field">
+        <label>Job description</label>
+        <textarea id="jd-input" placeholder="Paste the full job posting here — requirements, responsibilities, and any other details…"></textarea>
+      </div>
+    </div>
+
+    <!-- Tab: CV -->
+    <div class="input-tab-panel" id="ctab-cv">
+      <div class="field">
+        <label>Upload your CV</label>
+        <div class="dropzone" id="dropzone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+          <input type="file" accept=".pdf,.doc,.docx,.txt" onchange="handleFileSelect(event)">
+          <div class="dropzone-icon">📄</div>
+          <p class="dropzone-title">Drop your CV here</p>
+          <p class="dropzone-sub">PDF, Word, or TXT — or click to browse</p>
+        </div>
+        <div class="dropzone-file" id="dropzone-file">
+          <span id="dropzone-filename">—</span>
+          <button onclick="clearFile()">✕ Remove</button>
+        </div>
+      </div>
+      <div class="or-divider">or paste instead</div>
+      <div class="field">
+        <label>CV / skills summary (text)</label>
+        <textarea id="cv-input" placeholder="Paste your CV, work experience, skills, or a summary of your background…"></textarea>
+      </div>
+    </div>
+
+    <button class="analyse-btn blue-btn" id="cand-btn" onclick="runCandidate()">
+      Analyse my match
+    </button>
+
+    <div class="results" id="cand-results" style="display:none"></div>
+  </div>
+</div><!-- /page-candidate -->
+
+
+<!-- ══════════════════════════════════════════
+     RECRUITER PAGE
+══════════════════════════════════════════ -->
+<div class="page" id="page-recruiter">
+  <div class="app-wrap">
+    <div class="app-header">
+      <h2>Recruiter shortlisting</h2>
+      <p>Rank multiple candidates against a role in minutes, not hours.</p>
+    </div>
+
+    <div class="alert" id="rec-alert"></div>
+
+    <div class="field">
+      <label>Job description</label>
+      <textarea id="rec-jd" class="green-focus" placeholder="Paste the job description here…" style="min-height:160px"></textarea>
+    </div>
+
+    <div class="candidates-section">
+      <p class="candidates-label">Candidates</p>
+      <div id="candidates-list"></div>
+      <button class="add-btn" onclick="addCandidate()">+ Add candidate</button>
+    </div>
+
+    <button class="analyse-btn green-btn" id="rec-btn" onclick="runRecruiter()">
+      Rank candidates
+    </button>
+
+    <div id="rec-progress" style="display:none;margin-top:16px">
+      <div class="progress-text" id="prog-text">Analysing…</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="results" id="rec-results" style="display:none"></div>
+  </div>
+</div><!-- /page-recruiter -->
+
+
+<script>
+let API_KEY = '';
+let candidateCount = 0;
+let cvFileText = '';
+
+// ── Page routing ──────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.querySelector('.nav-tab.tab-' + name);
+  if (tab) tab.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ── Candidate input tabs ──────────────────────────────────────────────────────
+function setCandTab(tab) {
+  document.querySelectorAll('.input-tab').forEach((t, i) => {
+    const tabs = ['job-name','job-desc','cv'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.input-tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('ctab-' + tab).classList.add('active');
+}
+
+// ── Drop zone ─────────────────────────────────────────────────────────────────
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropzone').classList.add('drag-over'); }
+function handleDragLeave(e) { document.getElementById('dropzone').classList.remove('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+function processFile(file) {
+  document.getElementById('dropzone-filename').textContent = file.name;
+  document.getElementById('dropzone-file').classList.add('show');
+  const reader = new FileReader();
+  reader.onload = ev => { cvFileText = ev.target.result; };
+  reader.readAsText(file);
+}
+function clearFile() {
+  cvFileText = '';
+  document.getElementById('dropzone-file').classList.remove('show');
+  document.getElementById('dropzone-filename').textContent = '—';
+}
+
+// ── API key modal ─────────────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('api-key-input').value = API_KEY;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('api-key-input').focus(), 50);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function saveKey() {
+  API_KEY = document.getElementById('api-key-input').value.trim();
+  const badge = document.getElementById('api-badge');
+  badge.textContent = API_KEY ? 'key set ✓' : 'API key';
+  badge.className = 'api-badge' + (API_KEY ? ' set' : '');
+  closeModal();
+}
+document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.getElementById('api-key-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+
+// ── API call ──────────────────────────────────────────────────────────────────
+async function callAPI(prompt) {
+  if (!API_KEY) throw new Error('NO_KEY');
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error?.message || 'API error ' + res.status); }
+  const data = await res.json();
+  return data.content.map(b => b.text || '').join('');
+}
+function parseJSON(raw) { return JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+function showAlert(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); }
+function hideAlert(id) { document.getElementById(id).classList.remove('show'); }
+function scoreClass(s) { return s >= 75 ? 'great' : s >= 50 ? 'ok' : 'low'; }
+function scoreColor(s) { return s >= 75 ? 'var(--green)' : s >= 50 ? 'var(--amber)' : 'var(--red)'; }
+
+// ── Candidate run ─────────────────────────────────────────────────────────────
+async function runCandidate() {
+  hideAlert('cand-alert');
+  const title = document.getElementById('job-title').value.trim();
+  const jd    = document.getElementById('jd-input').value.trim();
+  const cvText = cvFileText || document.getElementById('cv-input').value.trim();
+  if (!jd)     { setCandTab('job-desc'); showAlert('cand-alert','Please paste the job description.'); return; }
+  if (!cvText) { setCandTab('cv');       showAlert('cand-alert','Please upload or paste your CV.'); return; }
+  if (!API_KEY) { openModal(); return; }
+
+  const btn = document.getElementById('cand-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>Analysing…';
+  document.getElementById('cand-results').style.display = 'none';
+
+  const prompt = `Analyse the match between this candidate's CV and the job description.
+${title ? 'Role: ' + title : ''}
+Return ONLY a valid JSON object (no markdown, no explanation):
+{
+  "score": <integer 0-100>,
+  "scoreLabel": "<Excellent|Strong|Good|Fair|Weak>",
+  "scoreSummary": "<2 sentences summarising fit>",
+  "matchedSkills": ["skill1","skill2"],
+  "partialSkills": ["skill1","skill2"],
+  "missingSkills": ["skill1","skill2"],
+  "suggestions": ["suggestion1","suggestion2","suggestion3","suggestion4"]
+}
+JOB DESCRIPTION:\n${jd}\nCANDIDATE CV:\n${cvText}`;
+
+  try {
+    const raw = await callAPI(prompt);
+    const r = parseJSON(raw);
+    renderCandidateResults(r, jd, cvText);
+  } catch(e) {
+    if (e.message === 'NO_KEY') openModal();
+    else showAlert('cand-alert', 'Error: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.innerHTML = 'Analyse my match';
+}
+
+function renderCandidateResults(r, jd, cv) {
+  const score = Math.round(r.score);
+  const matchedHTML = (r.matchedSkills||[]).map(s=>`<span class="tag matched">${s}</span>`).join('');
+  const partialHTML = (r.partialSkills||[]).map(s=>`<span class="tag partial">${s}</span>`).join('');
+  const missingHTML = (r.missingSkills||[]).map(s=>`<span class="tag missing">${s}</span>`).join('');
+  const sugHTML = (r.suggestions||[]).map(s=>`<div class="suggestion"><span class="suggestion-arrow">→</span><span>${s}</span></div>`).join('');
+  const jdE = JSON.stringify(jd), cvE = JSON.stringify(cv), sc = JSON.stringify(r.matchedSkills||[]), ms = JSON.stringify(r.missingSkills||[]);
+  document.getElementById('cand-results').innerHTML = `
+    <div class="score-card">
+      <div class="score-circle ${scoreClass(score)}"><span class="num">${score}%</span><span class="lbl">${r.scoreLabel||''}</span></div>
+      <p class="score-summary">${r.scoreSummary||''}</p>
+    </div>
+    <div class="results-grid">
+      <div class="skill-card matched"><h4>Matched skills</h4><div class="tags">${matchedHTML||'<span style="font-size:13px;color:var(--text3)">None</span>'}</div></div>
+      <div class="skill-card partial"><h4>Partial / transferable</h4><div class="tags">${partialHTML||'<span style="font-size:13px;color:var(--text3)">None</span>'}</div></div>
+      <div class="skill-card missing"><h4>Gaps to address</h4><div class="tags">${missingHTML||'<span style="font-size:13px;color:var(--text3)">None</span>'}</div></div>
+    </div>
+    <div class="suggestions-card"><h4>Tailored suggestions</h4>${sugHTML}</div>
+    <button class="cover-btn" id="cover-btn" onclick="generateCoverLetter(${score},${sc},${ms},${jdE},${cvE})">✉ Generate cover letter</button>
+    <div id="cover-output"></div>`;
+  document.getElementById('cand-results').style.display = 'block';
+}
+
+async function generateCoverLetter(score, matched, missing, jd, cv) {
+  const btn = document.getElementById('cover-btn');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  const prompt = `Write a professional 3-paragraph cover letter for this candidate.
+Match score: ${score}%. Top skills: ${(matched||[]).slice(0,5).join(', ')}. Gaps: ${(missing||[]).slice(0,3).join(', ')}.
+Return only the cover letter — three paragraphs, no greeting or subject line.
+JOB DESCRIPTION: ${jd}\nCANDIDATE CV: ${cv}`;
+  try {
+    const text = await callAPI(prompt);
+    document.getElementById('cover-output').innerHTML = `<div class="cover-letter-box">${text}</div>`;
+  } catch(e) {
+    document.getElementById('cover-output').innerHTML = `<div class="cover-letter-box" style="color:var(--red)">Error: ${e.message}</div>`;
+  }
+  btn.disabled = false; btn.textContent = '✉ Regenerate cover letter';
+}
+
+// ── Recruiter ────────────────────────────────────────────────────────────────
+function addCandidate() {
+  if (document.getElementById('candidates-list').children.length >= 10) return;
+  candidateCount++;
+  const id = candidateCount;
+  const div = document.createElement('div');
+  div.className = 'candidate-row'; div.id = 'cand-' + id;
+  div.innerHTML = `<input type="text" placeholder="Candidate name" id="name-${id}">
+    <textarea class="green-focus" placeholder="Paste CV or skills summary…" id="cvcand-${id}"></textarea>
+    <button class="remove-btn" onclick="removeCandidate(${id})" title="Remove">×</button>`;
+  document.getElementById('candidates-list').appendChild(div);
+}
+function removeCandidate(id) { const el = document.getElementById('cand-'+id); if(el) el.remove(); }
+addCandidate(); addCandidate();
+
+async function runRecruiter() {
+  hideAlert('rec-alert');
+  const jd = document.getElementById('rec-jd').value.trim();
+  if (!jd) { showAlert('rec-alert','Please paste a job description.'); return; }
+  if (!API_KEY) { openModal(); return; }
+  const rows = document.querySelectorAll('.candidate-row');
+  const candidates = [];
+  for (const row of rows) {
+    const id = row.id.match(/\d+/)?.[0];
+    if (!id) continue;
+    const name = document.getElementById('name-'+id)?.value.trim() || 'Candidate';
+    const cv   = document.getElementById('cvcand-'+id)?.value.trim();
+    if (cv) candidates.push({name, cv});
+  }
+  if (!candidates.length) { showAlert('rec-alert','Please add at least one candidate with a CV.'); return; }
+
+  const btn = document.getElementById('rec-btn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>Ranking…';
+  document.getElementById('rec-results').style.display = 'none';
+  document.getElementById('rec-progress').style.display = 'block';
+
+  const results = [];
+  for (let i = 0; i < candidates.length; i++) {
+    document.getElementById('prog-text').textContent = `Analysing ${candidates[i].name} (${i+1} of ${candidates.length})…`;
+    document.getElementById('prog-bar').style.width = ((i/candidates.length)*100)+'%';
+    const prompt = `Analyse candidate fit. Return ONLY valid JSON (no markdown):
+{"score":<0-100>,"scoreLabel":"<Excellent|Strong|Good|Fair|Weak>","scoreSummary":"<2 sentences>","matchedSkills":[],"partialSkills":[],"missingSkills":[],"suggestions":[]}
+JOB DESCRIPTION:\n${jd}\nCANDIDATE CV:\n${candidates[i].cv}`;
+    try {
+      const raw = await callAPI(prompt);
+      const r = parseJSON(raw);
+      results.push({...r, name:candidates[i].name, score:Math.round(r.score)});
+    } catch(e) {
+      results.push({name:candidates[i].name,score:0,scoreLabel:'Error',scoreSummary:e.message,matchedSkills:[],missingSkills:[],suggestions:[]});
+    }
+  }
+  document.getElementById('prog-bar').style.width = '100%';
+  setTimeout(() => { document.getElementById('rec-progress').style.display = 'none'; }, 400);
+  results.sort((a,b) => b.score - a.score);
+  renderLeaderboard(results);
+  btn.disabled = false; btn.innerHTML = 'Rank candidates';
+}
+
+function renderLeaderboard(results) {
+  const medals = ['🥇','🥈','🥉'];
+  let rows = '';
+  results.forEach((r,i) => {
+    const strengths = (r.matchedSkills||[]).slice(0,3).map(s=>`<span class="lb-tag pos">${s}</span>`).join('');
+    const gaps = (r.missingSkills||[]).slice(0,2).map(s=>`<span class="lb-tag neg">${s}</span>`).join('');
+    const did = 'detail-'+i;
+    const sugg = (r.suggestions||[]).map(s=>`• ${s}`).join('<br>');
+    const mt = (r.matchedSkills||[]).map(s=>`<span class="tag matched">${s}</span>`).join(' ');
+    const ms = (r.missingSkills||[]).map(s=>`<span class="tag missing">${s}</span>`).join(' ');
+    rows += `<div class="lb-row${i===0?' top':''}" onclick="toggleDetail('${did}')">
+      <span class="rank${i===0?' gold':''}">${medals[i]||(i+1)}</span>
+      <span class="cand-name">${r.name}</span>
+      <span class="lb-score" style="color:${scoreColor(r.score)}">${r.score}%</span>
+      <div class="lb-tags">${strengths||'—'}</div>
+      <div class="lb-tags">${gaps||'—'}</div>
+      <button class="view-btn" onclick="event.stopPropagation();toggleDetail('${did}')">Details</button>
+    </div>
+    <div class="detail-panel" id="${did}">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px">${r.scoreSummary||''}</p>
+      <h5>Matched skills</h5><div class="tags" style="margin-bottom:10px">${mt||'—'}</div>
+      <h5>Gaps</h5><div class="tags" style="margin-bottom:10px">${ms||'—'}</div>
+      <h5>Suggestions</h5><p style="font-size:13px;color:var(--text2);line-height:1.7">${sugg||'—'}</p>
+    </div>`;
+  });
+  document.getElementById('rec-results').innerHTML = `
+    <div class="leaderboard">
+      <div class="lb-header"><span>Rank</span><span>Name</span><span>Score</span><span>Top strengths</span><span>Key gaps</span><span></span></div>
+      ${rows}
+    </div>
+    <button class="export-btn" onclick="exportCSV(${JSON.stringify(results)})">Export to CSV</button>`;
+  document.getElementById('rec-results').style.display = 'block';
+}
+
+function toggleDetail(id) { document.getElementById(id).classList.toggle('open'); }
+
+function exportCSV(results) {
+  const header = ['Rank','Name','Score','Label','Summary','Matched Skills','Missing Skills'];
+  const rows = results.map((r,i) => [i+1,r.name,r.score,r.scoreLabel||'',(r.scoreSummary||'').replace(/,/g,';'),(r.matchedSkills||[]).join('; '),(r.missingSkills||[]).join('; ')]);
+  const csv = [header,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'matchiq-ranking.csv'; a.click();
+}
+</script>
+</body>
+</html>
